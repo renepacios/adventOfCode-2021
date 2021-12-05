@@ -11,7 +11,7 @@ namespace Day04ConsoleApp
         static void Main(string[] args)
         {
             PartOne();
-            // PartTwo();
+            PartTwo();
 
             Console.WriteLine("Hello World!");
             Console.ReadLine();
@@ -65,12 +65,49 @@ namespace Day04ConsoleApp
 
         private static void PartTwo()
         {
-            var fileData = DataReader.Read("data.txt", s => (s));
+            var fileData = DataReader.Read("sample.txt", s => (s)).ToList();
 
-            string oxygen = string.Empty,
-                co2 = string.Empty;
+            string randoms = fileData.First();
 
-            Console.WriteLine($"There are oxygen {oxygen } binary value co2 {co2} binary value . The decimal is {Convert.ToInt32(oxygen, 2)} oxygen and {Convert.ToInt32(co2, 2)}  co2. The Product is  {Convert.ToInt32(oxygen, 2) * Convert.ToInt32(co2, 2)}");
+
+            //LoadCartoon
+            Board board = null;
+            Cartoon cartoon = new Cartoon();
+            int boarNumber = 0;
+            foreach (var line in fileData.Skip(1))
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    if (board != null) { cartoon.Boards.Add(board); }
+                    board = new Board(++boarNumber);
+                    continue;
+                }
+
+                board.AddRow(line);
+            }
+            cartoon.Boards.Add(board); //file not has blank line at end
+
+            var second = new SecondPart(cartoon);
+
+            //Play Bingo Game
+            foreach (var s in randoms.Split(",", StringSplitOptions.RemoveEmptyEntries))
+            {
+                cartoon.MarkNumber(s);
+
+                var winBooards = second.GetBoardsWithLine();
+
+                if (cartoon.CheckIfLine())
+                {
+                    int number = Convert.ToInt32(s);
+
+                    var sum = cartoon.GetSumOfBoardWithWinLine();
+
+                    Console.WriteLine($"The sum is {sum} with number {number}. Product and Result is {number * sum}");
+
+
+                }
+            }
+
         }
 
 
@@ -107,6 +144,8 @@ namespace Day04ConsoleApp
 
             var res = winBoard.GetSumLineWinByRows();
 
+            Console.WriteLine($"Board {winBoard.BoarNumber} When {winBoard.FirstWin?.Ticks ?? -1 }");
+
             return res != 0 ? res : winBoard.GetSumLineWinByCols();
         }
 
@@ -115,16 +154,33 @@ namespace Day04ConsoleApp
 
     public class Board
     {
+        public int BoarNumber { get; }
         private int rowNumber;
-        public Board()
+        public Board(int boarNumber = 0)
         {
+            BoarNumber = boarNumber;
             rowNumber = 0;
             Numbers = new List<Number>();
         }
         public List<Number> Numbers { get; set; }
 
 
-        public bool ThereAreAnyLine => GetSumLineWinByRows() != -1 || GetSumLineWinByCols() != -1;
+        public bool ThereAreAnyLine
+        {
+            get
+            {
+                var dev = GetSumLineWinByRows() != -1 || GetSumLineWinByCols() != -1;
+
+                if (dev && !FirstWin.HasValue)
+                {
+                    FirstWin = DateTime.Now;
+                }
+
+                return dev;
+            }
+        }
+
+        public DateTime? FirstWin { get; set; }
 
 
         public void AddRow(string numberRow)
@@ -149,11 +205,11 @@ namespace Day04ConsoleApp
 
                 if (debug)
                 {
-                  
+
                     Numbers
                         .Where(w => w.Y == i)
                         .ToList()
-                        .ForEach(s => Console.WriteLine($"[{s.X},{s.Y}] - {s.Digit} ({(s.IsMarked ? "*":" ")})"));
+                        .ForEach(s => Console.WriteLine($"[{s.X},{s.Y}] - {s.Digit} ({(s.IsMarked ? "*" : " ")})"));
                 }
 
 
@@ -179,7 +235,7 @@ namespace Day04ConsoleApp
 
                 if (debug)
                 {
-                   
+
                     Numbers
                         .Where(w => w.X == i)
                         .ToList()
