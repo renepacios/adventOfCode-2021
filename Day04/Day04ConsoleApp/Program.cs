@@ -11,7 +11,7 @@ namespace Day04ConsoleApp
         static void Main(string[] args)
         {
             PartOne();
-           // PartTwo();
+            // PartTwo();
 
             Console.WriteLine("Hello World!");
             Console.ReadLine();
@@ -60,7 +60,7 @@ namespace Day04ConsoleApp
 
 
 
-          
+
         }
 
         private static void PartTwo()
@@ -86,7 +86,7 @@ namespace Day04ConsoleApp
 
         public Cartoon()
         {
-            Boards=new List<Board>();
+            Boards = new List<Board>();
         }
 
         public void MarkNumber(string number)
@@ -139,14 +139,27 @@ namespace Day04ConsoleApp
 
 
 
-        public int GetSumLineWinByRows(bool debug)
+        public int GetSumLineWinByRows(bool debug = false)
         {
+
+            if (debug) Console.WriteLine("Debug Line By Row");
             for (var i = 0; i <= Numbers.Max(m => m.Y); i++)
             {
                 var therAreAnyWithOutMark = Numbers.Any(w => w.Y == i && !w.IsMarked);
 
+                if (debug)
+                {
+                  
+                    Numbers
+                        .Where(w => w.Y == i)
+                        .ToList()
+                        .ForEach(s => Console.WriteLine($"[{s.X},{s.Y}] - {s.Digit} ({(s.IsMarked ? "*":" ")})"));
+                }
+
+
                 if (!therAreAnyWithOutMark)
                     return Numbers.Where(w => w.Y == i).Sum(s => s.Digit);
+
 
             }
 
@@ -154,11 +167,25 @@ namespace Day04ConsoleApp
 
         }
 
-        public int GetSumLineWinByCols()
+        public int GetSumLineWinByCols(bool debug = false)
         {
+            if (debug) Console.WriteLine("Debug Line By Col");
+
+
             for (var i = 0; i <= Numbers.Max(m => m.X); i++)
             {
                 var therAreAnyWithOutMark = Numbers.Any(w => w.X == i && !w.IsMarked);
+
+
+                if (debug)
+                {
+                   
+                    Numbers
+                        .Where(w => w.X == i)
+                        .ToList()
+                        .ForEach(s => Console.WriteLine($"[{s.X},{s.Y}] - {s.Digit} ({(s.IsMarked ? "*" : " ")})"));
+                }
+
                 if (!therAreAnyWithOutMark)
                     return Numbers.Where(w => w.X == i).Sum(s => s.Digit);
             }
