@@ -71,7 +71,7 @@
                 //    return Numbers.Where(w => w.Y == i).Sum(s => s.Digit);
 
                 //if all are this line has mark and is not old line
-                if (!therAreAnyWithOutMark && Numbers.Any(w => w.Y == i && !w.IsOldPrize))
+                if (!therAreAnyWithOutMark)// && Numbers.Any(w => w.Y == i && !w.IsOldPrize))
                 {
                     return true;
                 }
@@ -105,7 +105,7 @@
                 //    return Numbers.Where(w => w.X == i).Sum(s => s.Digit);
 
                 //if all are this line has mark and is not old line
-                if (!therAreAnyWithOutMark && Numbers.Any(w => w.X == i && !w.IsOldPrize))
+                if (!therAreAnyWithOutMark)// && Numbers.Any(w => w.X == i && !w.IsOldPrize))
                 {
                     return true;
                 }
@@ -114,32 +114,37 @@
             return false;
         }
 
-        public void MarkNumber(string number)
+        public bool MarkNumber(string number)
         {
             int n = Convert.ToInt32(number);
 
             var num = Numbers.FirstOrDefault(w => w.Digit == n);
 
-            if (num == null) return;
+            if (num == null) return false;
 
             num.IsMarked = true;
             Numbers = Numbers.Where(w => w.Digit != n).ToList();
             Numbers.Add(num);
+            return true;
         }
 
+        public int GetSumNotMarked() => Numbers.Where(w => !w.IsMarked).Sum(s => s.Digit);
 
         public void PrintBoard()
         {
-            Enumerable.Range(0, Numbers.Max(m => m.X)).Select(i => i).ToList().ForEach(i => Console.Write($"   {i}  "));
+            Console.WriteLine($"Board Number {BoarNumber} isFirstWin {!FirstWin.HasValue}");
 
+            Enumerable.Range(0, Numbers.Max(m => m.X)+1).Select(i => i).ToList().ForEach(i => Console.Write($"  [{i}]"));
+            Console.WriteLine(string.Empty);
             for (int i = 0, t = Numbers.Max(m => m.Y); i <= t; i++)
             {
-                Console.WriteLine($"{i} ");
-                for (int j = 0, tx = Numbers.Max(m => m.X); j <= t; j++)
+                Console.Write($"({i}) ");
+                for (int j = 0, tx = Numbers.Max(m => m.X); j <= tx; j++)
                 {
                     var num = Numbers.First(w => w.Y == i && w.X == j);
                     num.Print();
                 }
+                Console.WriteLine();
             }
 
         }

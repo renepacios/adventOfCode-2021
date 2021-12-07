@@ -3,6 +3,7 @@ using System;
 
 namespace Day04ConsoleApp
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     class Program
@@ -10,9 +11,11 @@ namespace Day04ConsoleApp
         static void Main(string[] args)
         {
             PartOne();
-          //  PartTwo();
 
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("----- PART TWO------");
+            PartTwo();
+
+
             Console.ReadLine();
         }
 
@@ -49,9 +52,9 @@ namespace Day04ConsoleApp
                 {
                     int number = Convert.ToInt32(s);
 
-                    var sum = cartoon.GetSumWithOutMarkOfBoardWithWinLine();
+                    var sum = cartoon.GetSumWithOutMarkOfBoardWithWinLine(true);
 
-                    Console.WriteLine($"The sum is {sum} with number {number}. Product and Result is {number * sum}");
+                    Console.WriteLine($"\nThe sum is {sum} with number {number}. Product and Result is {number * sum}");
 
                     break;
                 }
@@ -65,7 +68,8 @@ namespace Day04ConsoleApp
 
         private static void PartTwo()
         {
-            var fileData = DataReader.Read("sample.txt", s => (s)).ToList();
+            // var fileData = DataReader.Read("sample.txt", s => (s)).ToList();
+            var fileData = DataReader.Read("data.txt", s => (s)).ToList();
 
             string randoms = fileData.First();
 
@@ -87,26 +91,55 @@ namespace Day04ConsoleApp
             }
             cartoon.Boards.Add(board); //file not has blank line at end
 
-            var second = new SecondPart(cartoon);
+            //  var second = new SecondPart(cartoon);
+
+            List<Board> winBoards = new List<Board>();
+            int lastNumberWithFirstBoardWin = -1;
+            int lastSumWithFirstBoardWin = -1;
 
             //Play Bingo Game
             foreach (var s in randoms.Split(",", StringSplitOptions.RemoveEmptyEntries))
             {
-                cartoon.MarkNumber(s);
+                cartoon.MarkNumber(s, false);
 
-                var winBooards = second.GetBoardsWithLine();
+                //  var winBooards = second.GetBoardsWithLine();
 
                 if (cartoon.CheckIfLine())
                 {
                     int number = Convert.ToInt32(s);
 
-                    var sum = cartoon.GetSumWithOutMarkOfBoardWithWinLine();
+                    IEnumerable<(int, Board)> wins = cartoon.GetBoardWithWinLine(true);
 
-                    Console.WriteLine($"The sum is {sum} with number {number}. Product and Result is {number * sum}");
+                    foreach ((int sum, Board b) in wins)
+                    {
 
+                        if (winBoards.Any(w => w.BoarNumber == b.BoarNumber)) throw new Exception("Repeated Board");
+
+                        var winBoard = cartoon.PopBoard(b.BoarNumber);
+                        winBoards.Add(b);
+                        lastNumberWithFirstBoardWin = number;
+                        lastSumWithFirstBoardWin = sum;
+
+                        // b.PrintBoard();
+
+                        Console.WriteLine($"\nThe sum is {sum} with number {number}. Product and Result is {number * sum}");
+
+
+                    }
 
                 }
+
             }
+            var lastBoard = winBoards.LastOrDefault();
+
+            if (lastBoard == null)
+            {
+                Console.WriteLine("Something was wrong!!!!");
+                return;
+            }
+
+
+            Console.WriteLine($"Final result last Board {lastBoard.BoarNumber} sum is {lastSumWithFirstBoardWin} with number {lastNumberWithFirstBoardWin}. Product and Result is {lastSumWithFirstBoardWin * lastNumberWithFirstBoardWin}");
 
         }
 

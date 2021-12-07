@@ -23,6 +23,7 @@
             IsOldPrize = false;
         }
 
+        public void CheckAsPaidPrize() => IsOldPrize = true;
 
         public void Print()
         {
@@ -30,9 +31,13 @@
             {
                 Console.Write("#");
             }
-            else if (!IsMarked) Console.Write("*");
+            else if (IsMarked) Console.Write("*");
+            else
+            {
+                Console.Write(" ");
+            }
 
-            Console.Write($"{Digit} ");
+            Console.Write($"{Digit.ToString().PadLeft(2, ' ')} ");
         }
     }
 }
